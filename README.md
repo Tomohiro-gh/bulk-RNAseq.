@@ -98,6 +98,20 @@ rsem-generate-data-matrix \
 -----------------
 ## Step4. Creating Expression matrix (TPM) - (Trinity)
 
+```sh
+$HOME/full_path_to/abundance_estimates_to_matrix.pl \
+    --est_method RSEM \
+    --gene_trans_map none\
+    --out_prefix TPMmatrix \
+    --cross_sample_norm TMM \
+    $wd/Ctrl1_rsem.genes.results \
+    $wd/Ctrl2_rsem.genes.results \
+    $wd/Ctrl3_rsem.genes.results \
+    $wd/Drug1_rsem.genes.results \
+    $wd/Drug2_rsem.genes.results \
+    $wd/Drug3_rsem.genes.results   
+```
+
 
 
 bulk-RNAseq. analysis
