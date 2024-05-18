@@ -29,6 +29,20 @@ helpが出ればOK
 ### 参考
 
 ## TPMの算出
+```sh
+$HOME/path/to/abundance_estimates_to_matrix.pl \
+    --est_method RSEM \
+    --gene_trans_map none\
+    --out_prefix TPMmatrix \
+    --cross_sample_norm TMM \
+    $wd/Ctrl_2_S5_rsem.genes.results \
+    $wd/Ctrl_3_S7_rsem.genes.results \
+    $wd/Ctrl_4_S9_rsem.genes.results \
+    $wd/MTZ_1_S4_rsem.genes.results \
+    $wd/MTZ_2_S6_rsem.genes.results \
+    $wd/MTZ_3_S8_rsem.genes.results   
+```
+abundance_estimates_to_matrix.plはfull pathを指定
 
 Trinity 付属スクリプト：align_and_estimate_abundance.pl　を使う
 
