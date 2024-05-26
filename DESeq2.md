@@ -1,4 +1,7 @@
-# DEseq2 Ny codes
+# DEseq2 tutorial
+
+-------------------
+# 1) 2 group with biolocical replicates
 
 ## Step1 dataの読み込み
 #### count data by rsem
@@ -39,7 +42,7 @@ files <- file.path(countdir, paste0(sample.names, "_rsem.genes.results"))
 FOI <- c(1,3,4,6) #例2,5番目のサンプルを除外
 files <- files[FOI]
 sample.names <- sample.names[FOI]
-(group_selected <- group[FOI])
+(group <- group[FOI])
 ## <<<<<<<<<<<<<<<<<<<
 
 # groupの順序を決めておく
@@ -57,12 +60,14 @@ txi$length[txi$length==0] <- 1
 
 ## Step2 DESeq objectの準備，　解析
 ```r 
-# DESEQ用のmetadataの作成
-id <- c("Ctrl2", "Ctrl4", "MTZ1", "MTZ3")
-Group <- group_selected
-Trial <- c("2nd", "4th", "1st", "3rd")
-meta <- data.frame(id, Group, Trial)
+# DESEQ用のmetadataの作成: 幾つの情報を持たせることができる
+id <- sample.names
+Group <- group
+Trial <- rep(c("1st", "2nd", "3rd"),2)
 
+meta <- data.frame(sample.names, Group, Trial)
+
+## creating DEseq object
 dds <- DESeqDataSetFromTximport(txi, 
                                 colData = meta,
                                 design = ~ Group)
@@ -87,8 +92,9 @@ res <- results(dds)
 
 ## Ensembl Gene IDを symbolへ変換
 ・ Zebrafishの場合， ensembl IDしか付与されていないことがある
+
 ・ ensemblにしかないものはensembl　IDを付与
-・ Zebrafishの場合， ensembl IDしか付与されていないことがある
+
 
 ```r
 genes.df <- 
