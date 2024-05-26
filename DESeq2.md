@@ -1,5 +1,10 @@
 # DEseq2 tutorial
 
+
+参考ページ
+
+https://kazumaxneo.hatenablog.com/entry/2022/05/08/042014
+
 -------------------
 # 1) 2 group with biolocical replicates
 
@@ -154,14 +159,69 @@ res.merge[1,2] <- "EGFP"
 rownames(dds) <- res.merge$SYMBOL
 ```
 
-### Dounstream analysis 1: MA plot
+### 結果の確認
 ```r
+## MA plot
+plotMA(res, ylim=c(-5,5))
+
+## 有意なものから順に並べる
+res[order(res$padj),]
+
+## 発現データの保存
+write.xlsx(as.data.frame(res[order(res$padj),] ), "DESeq2_results.xlsx")
+
+## 発現解析の要約を表示
+summary(results(dds, alpha=0.05))
+
+## 正規化した値を作成
+normalized_counts <- counts(dds, normalized=TRUE)
+  head(normalized_counts)
+  #書き出し
+  write.xlsx(as.data.frame(normalized_counts),
+               file="DESeq2normalized_counts.xlsx")
 
 ```
 
 
-### Dounstream analysis 2: Sample Distance & PCA
+### Dounstream analysis: Sample Distance & PCA
 ```r
+#対数変換してDESeqTransformオブジェクトを作成
+ntd <- normTransform(dds)
+
+#変換後のデータの標準偏差を、平均値に対してサンプル数でプロット
+  library("vsn") #link
+  meanSdPlot(assay(ntd))
+  分散推定値のプロット
+  plotDispEsts(dds)
+
+## Heatmap of the sample-to-sample distances
+sampleDists <- dist(t(assay(vsd)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(vsd$Group, vsd$id, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+  png("SampleDistance.png", width = 1500, height = 1200, res = 300)
+    pheatmap(sampleDistMatrix,
+             clustering_distance_rows=sampleDists,
+             clustering_distance_cols=sampleDists,
+             col=colors)
+    dev.off()
+    
+## Principal component plot of the samples
+    png("PCAplot.png", width = 1600, height = 1200, res = 300)
+      plotPCA(vsd, intgroup=c("Group", "Trial"))
+        dev.off()
+  
+    pcaData <- plotPCA(vsd, intgroup=c("Group", "Trial"), returnData=TRUE)
+    percentVar <- round(100 * attr(pcaData, "percentVar"))
+      ggplot(pcaData, aes(PC1, PC2, color=Group, shape=Trial)) +
+        geom_point(size=3) +
+        xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+        ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
+        coord_fixed()
+          ggsave("240520_PCAplot__Ctrl24_MTZ13.png", width = 6, height = 6, dpi = 300)
+          
+## ------------
 
 
 ```
