@@ -162,24 +162,32 @@ rownames(dds) <- res.merge$SYMBOL
 ### 結果の確認
 ```r
 ## MA plot
-plotMA(res, ylim=c(-5,5))
+plotMA(res, ylim=c(-5,5)) # limは適宜変えてもいい
 
 ## 有意なものから順に並べる
-res[order(res$padj),]
+res_order <- res[order(res$padj),]
 
 ## 発現データの保存
-write.xlsx(as.data.frame(res[order(res$padj),] ), "DESeq2_results.xlsx")
+# まず up downを挿入する
+res.merge <- res.merge %>% 
+    arrange(pvalue) %>%
+    mutate(diffexpressed=case_when(
+      padj<0.1 & log2FoldChange > 2 ~ "UP",
+      padj<0.1 & log2FoldChange < -2 ~ "DOWN",
+      TRUE ~ "None"))  %>%
+     na.omit(padj)
+        write.xlsx(res.merge, "DESeq2_results.xlsx")
+
 
 ## 発現解析の要約を表示
-summary(results(dds, alpha=0.05))
+  summary(results(dds, alpha=0.05))
 
 ## 正規化した値を作成
 normalized_counts <- counts(dds, normalized=TRUE)
   head(normalized_counts)
   #書き出し
   write.xlsx(as.data.frame(normalized_counts),
-               file="DESeq2normalized_counts.xlsx")
-
+              "DESeq2normalized_counts.xlsx")
 ```
 
 
@@ -221,9 +229,53 @@ colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
         coord_fixed()
           ggsave("240520_PCAplot__Ctrl24_MTZ13.png", width = 6, height = 6, dpi = 300)
           
-## ------------
-
-
 ```
 
-### Dounstream analysis 3: Volcano plot
+### Dounstream analysis: Volcano plot
+
+
+```r
+myTHEME <- theme(
+  plot.title = element_text(hjust=0.5, size=24, face="bold"),
+  plot.subtitle = element_text(size = 24, hjust = 0.5),
+  axis.title.x = element_text(hjust=0.5, size=24, face="bold"),
+  axis.title.y = element_text(hjust=0.5, size= 24, face="bold"),
+  axis.text.x = element_text(hjust=0.5, colour = "black", size= 24, face="bold"),
+  axis.text.y = element_text(hjust=0.5, colour = "black", size= 24, face="bold"),
+  axis.line=element_line(colour = "black", linewidth=1.0),
+  axis.ticks=element_line(colour = "black", linewidth = 1.0),
+  axis.ticks.length = unit(3, "mm"),
+  # panel.grid.major = element_blank(), 
+  # panel.grid.minor = element_blank(),
+  # panel.background = element_blank(), 
+  text = element_text(size = 16, family="Arial"))
+
+
+mycolors <- c("blue", "red", "gray")
+names(mycolors) <- c("DOWN", "UP", "NO")
+
+gg <- ggplot(data=res.merge, 
+             aes(x= log2FoldChange, 
+                 y= -log10(pvalue), 
+                 col= diffexpressed)) +
+  #xlim(-8.5, 8.5) + ylim(0, 10) +
+  geom_point() +
+  scale_color_manual(values = mycolors) +
+  theme_minimal() +
+  labs(title = "DEseq2: Ctrl vs Drug") +
+  myTHEME
+    plot(gg)
+      ggsave("VolcanoPlot.png", width=10, height=8, dpi=300)
+  
+  gg_noleg <- gg + theme(legend.position = "none")
+    plot(gg_noleg)
+      ggsave("VolcanoPlot_nolegend.png", width=8, height=8, dpi=300)
+    
+## geneの名前をつけて
+gg1 <- gg + 
+  geom_text_repel(data=head(res.merge[res.merge$diffexpressed=="UP", ], 10), aes(label=SYMBOL)) +
+  geom_text_repel(data=head(res.merge[res.merge$diffexpressed=="DOWN", ], 10), aes(label=SYMBOL))
+    plot(gg1)
+      ggsave("VolcanoPlot_genelabel.png", width=10, height=8, dpi=300)
+        
+```
