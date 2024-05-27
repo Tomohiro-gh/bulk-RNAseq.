@@ -118,9 +118,9 @@ Ensembl -> Symbolへの変換を下記のように行う
 
 ・　１） EnsemblはあるがSymbolなし -> Ensemblを代入
 
-・　2）　Ensembl : Symbol = 1:複数 -> Ensembl IDを使用
+・　2）　Ensembl : Symbol = 1:複数 -> duplicateしたsymbolをensemblへ置き換え
 
-・　3） Ensembl : Symbol = 複数:1  -> 
+・　3） Ensembl : Symbol = 複数:1  -> duplicateしたSymbolをEnsembl IDへ置き換える
 
 
 ```r
