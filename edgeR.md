@@ -112,8 +112,19 @@ y <- DGEList(counts=counts, group=1:2)
 et <- exactTest(y, dispersion=bcv^2)
 ```
 
+
+------------------------------------------------
+Ensembl -> Symbolへの変換を下記のように行う
+
+・　１） EnsemblはあるがSymbolなし -> Ensemblを代入
+
+・　2）　Ensembl : Symbol = 1:複数 -> Ensembl IDを使用
+
+・　3） Ensembl : Symbol = 複数:1  -> 
+
+
 ```r
-## ENSEMBL geneをconversionする ------------------------------------------------
+## ENSEMBL geneをconversionする 
 genes.df <- 
   AnnotationDbi::select(x = org.Dr.eg.db,
                         keys = rownames(DEtable),
