@@ -39,7 +39,6 @@ sample.names <- sample.names[FOI]
 (group <- group[FOI])
 ## <<<<<<<<<<<<<<<<<<<
 
-
 # Reading rsem files with tximport
 txi <- tximport(files_selected, type="rsem", txIn=F, txOut=F)
   head(txi$counts)
