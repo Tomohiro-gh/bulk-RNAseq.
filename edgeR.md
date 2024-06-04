@@ -70,6 +70,7 @@ y <- estimateCommonDisp(y, design)
 y <- estimateTagwiseDisp(y)
 
 et <- exactTest(y)
+topTags(et)
 
 ```
 
